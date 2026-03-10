@@ -6,7 +6,7 @@ namespace Remp.DataAccess.Data;
 
 public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
-  public AppDbContext(DbContextOptions<AppContext> options) : base (options)
+  public AppDbContext(DbContextOptions<AppDbContext> options) : base (options)
   {
   }
 
@@ -16,7 +16,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<AgentListingCase> AgentListingCases { get; set; }
   public DbSet<AgentPhotographyCompany> AgentPhotographyCompanies { get; set; }
 
-  protected override void OModelCreating(ModelBuilder builder)
+  protected override void OnModelCreating(ModelBuilder builder)
   {
     base.OnModelCreating(builder);
 

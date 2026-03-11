@@ -21,7 +21,14 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 
   public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
 
-  public async Task UpdateAsync(T entity) => _dbSet.Update(entity);
+  public Task UpdateAsync(T entity){
+    _dbSet.Update(entity);
+    return Task.CompletedTask;
+  }
 
-  public async Task DeleteAsync(T entity) => _dbSet.Remove(entity);
+  public Task DeleteAsync(T entity)
+  {
+    _dbSet.Remove(entity);
+    return Task.CompletedTask;
+  } 
 }

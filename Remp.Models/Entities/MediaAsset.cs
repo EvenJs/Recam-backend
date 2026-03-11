@@ -12,9 +12,11 @@ public class MediaAsset
   public bool IsHero { get; set; } = false;
   public bool IsDeleted { get; set; } = false;
 
+  // Foreign Keys
   public int ListingCaseId { get; set; }
   public string UserId { get; set; } = string.Empty;
 
-  public ListingCase listingCase { get; set; } = null!;
+  // Navigation properties
+  public ListingCase ListingCase { get; set; } = null!;
   public ApplicationUser UploadedBy { get; set; } = null!;
 }

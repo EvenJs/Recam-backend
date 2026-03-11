@@ -12,5 +12,5 @@ public class CaseContact
   public string PhoneNumber { get; set; } = string.Empty;
 
   public int ListingCaseId { get; set; }
-  public AgentListingCase ListingCase { get; set; } = null!;
+  public ListingCase ListingCase { get; set; } = null!;
 }

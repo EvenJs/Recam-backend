@@ -13,6 +13,13 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs/Agent/" />
+    <Folder Include="DTOs/CaseContact/" />
+    <Folder Include="DTOs/ListingCase/" />
+    <Folder Include="DTOs/MediaAsset/" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

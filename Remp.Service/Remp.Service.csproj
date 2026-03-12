@@ -19,6 +19,7 @@
     <Folder Include="DTOs/ListingCase/" />
     <Folder Include="DTOs/MediaAsset/" />
     <Folder Include="Mappers/" />
+    <Folder Include="Validators/" />
   </ItemGroup>
 
   <PropertyGroup>

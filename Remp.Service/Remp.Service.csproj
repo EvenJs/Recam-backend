@@ -18,6 +18,7 @@
     <Folder Include="DTOs/CaseContact/" />
     <Folder Include="DTOs/ListingCase/" />
     <Folder Include="DTOs/MediaAsset/" />
+    <Folder Include="Interfaces/" />
     <Folder Include="Mappers/" />
     <Folder Include="Validators/" />
   </ItemGroup>

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Remp.Models.MongoDocuments;
 
@@ -7,10 +8,10 @@ public class MongoDbContext
 {
     private readonly IMongoDatabase _database;
 
-    public MongoDbContext(MongoDbSettings settings)
+    public MongoDbContext(IOptions<MongoDbSettings> settings)
     {
-        var client = new MongoClient(settings.ConnectionString);
-        _database = client.GetDatabase(settings.DatabaseName);
+        var client = new MongoClient(settings.Value.ConnectionString);
+        _database = client.GetDatabase(settings.Value.DatabaseName);
     }
 
     public IMongoCollection<CaseHistory> CaseHistory

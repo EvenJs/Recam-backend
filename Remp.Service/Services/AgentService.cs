@@ -9,7 +9,7 @@ using Remp.Service.DTOs.Auth;
 using Remp.Service.Interfaces;
 namespace Remp.Service.Services;
 
-public class AgentService
+public class AgentService : IAgentService
 {
   private readonly IUnitOfWork _uintOfWork;
   private readonly UserManager<ApplicationUser> _userManager;

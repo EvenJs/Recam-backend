@@ -1,6 +1,6 @@
 using Remp.Service.Interfaces;
 
-namespace Remp.Service.Validators;
+namespace Remp.Service.Services;
 
 public class EmailService : IEmailService
 {

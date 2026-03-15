@@ -17,6 +17,7 @@ using Remp.Repository.Interfaces;
 using Remp.Repository.Repositories;
 using Remp.Service.Interfaces;
 using Remp.Service.Services;
+using Remp.Service.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,7 +79,7 @@ builder.Services.AddAutoMapper(typeof(Remp.Service.Mappers.ListingCaseProfile).A
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Remp.Service.Validators.LoginRequestValidator>();
 
-// Services 
+// Repositories
 builder.Services.AddScoped<IListingCaseRepository, ListingCaseRepository>();
 builder.Services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
 builder.Services.AddScoped<IAgentRepository, AgentRepository>();
@@ -88,7 +89,15 @@ builder.Services.AddScoped<IAgentPhotographyCompanyRepository, AgentPhotographyC
 builder.Services.AddScoped<ICaseHistoryRepository, CaseHistoryRepository>();
 builder.Services.AddScoped<IUserActivityLogRepository, UserActivityLogRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Services 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAgentService, AgentService>();
+builder.Services.AddScoped<IListingCaseService, ListingCaseService>();
+builder.Services.AddScoped<IMediaAssetService, MediaAssetService>();
+builder.Services.AddScoped<ICaseContactService, CaseContactService>();
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add Swagger
 builder.Services.AddControllers();

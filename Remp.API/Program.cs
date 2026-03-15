@@ -31,7 +31,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFramework
 
 // JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"];
+var secretKey = jwtSettings["SecretKey"]
+    ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured.");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -42,13 +43,26 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = false,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
+        // ValidIssuer = jwtSettings["Issuer"],
+        // ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"JWT Auth failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("JWT Token validated successfully");
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -64,17 +78,6 @@ builder.Services.AddAutoMapper(typeof(Remp.Service.Mappers.ListingCaseProfile).A
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Remp.Service.Validators.LoginRequestValidator>();
 
-// Repositories
-builder.Services.AddScoped<IListingCaseRepository, ListingCaseRepository>();
-builder.Services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
-builder.Services.AddScoped<IAgentRepository, AgentRepository>();
-builder.Services.AddScoped<ICaseContactRepository, CaseContactRepository>();
-builder.Services.AddScoped<IAgentListingCaseRepository, AgentListingCaseRepository>();
-builder.Services.AddScoped<IAgentPhotographyCompanyRepository, AgentPhotographyCompanyRepository>();
-builder.Services.AddScoped<ICaseHistoryRepository, CaseHistoryRepository>();
-builder.Services.AddScoped<IUserActivityLogRepository, UserActivityLogRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
 // Services 
 builder.Services.AddScoped<IListingCaseRepository, ListingCaseRepository>();
 builder.Services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
@@ -85,6 +88,7 @@ builder.Services.AddScoped<IAgentPhotographyCompanyRepository, AgentPhotographyC
 builder.Services.AddScoped<ICaseHistoryRepository, CaseHistoryRepository>();
 builder.Services.AddScoped<IUserActivityLogRepository, UserActivityLogRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Add Swagger
 builder.Services.AddControllers();
@@ -146,8 +150,8 @@ if(app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 

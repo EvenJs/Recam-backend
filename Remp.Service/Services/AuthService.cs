@@ -51,7 +51,8 @@ public class AuthService : IAuthService
 
   public async Task<object> GetCurrentUserAsync(ClaimsPrincipal userClaims)
   {
-    var userId = userClaims.FindFirstValue(JwtRegisteredClaimNames.Sub)
+    var userId = userClaims.FindFirstValue(ClaimTypes.NameIdentifier)
+      ?? userClaims.FindFirstValue(JwtRegisteredClaimNames.Sub)
       ?? throw new NotFoundException("User not found.");
 
     var user = await _userManager.FindByIdAsync(userId)
@@ -82,7 +83,7 @@ public class AuthService : IAuthService
 
   private string GenerateJwtToken(ApplicationUser user, string role)
   {
-    var jwtKey = _configuration["Jwt:Key"]
+    var jwtKey = _configuration["JwtSettings:SecretKey"]
       ?? throw new InvalidOperationException("JWT key is not configured");
 
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
@@ -98,9 +99,9 @@ public class AuthService : IAuthService
 
     var token = new JwtSecurityToken(
       issuer: _configuration["JwtSettings:Issuer"],
-      audience: _configuration["JwtSettings: Audience"],
+      audience: _configuration["JwtSettings:Audience"],
       claims: claims,
-      expires: DateTime.UtcNow.AddHours(double.Parse(_configuration["Jwt:ExpiryHours"] ?? "24")),
+      expires: DateTime.UtcNow.AddHours(double.Parse(_configuration["JwtSettings:ExpiryMinutes"] ?? "60")),
       signingCredentials: credentials);
   
     return new JwtSecurityTokenHandler().WriteToken(token);

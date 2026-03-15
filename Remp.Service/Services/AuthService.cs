@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Remp.Common.Exceptions;
 using Remp.Models.Entities;
-using Remp.Repository.Interfaces;
 using Remp.Service.DTOs.Auth;
 using Remp.Service.Interfaces;
 
@@ -17,7 +16,6 @@ public class AuthService : IAuthService
 {
   private readonly UserManager<ApplicationUser> _userManager;
   private readonly IConfiguration _configuration;
-  private readonly IUserActivityLogRepository _activityLogRepo;
 
   public AuthService(
     UserManager<ApplicationUser> userManager,
@@ -51,20 +49,33 @@ public class AuthService : IAuthService
     };
   }
 
-  public async Task<string> GetCurrentUserAsync(string userId)
+  public async Task<object> GetCurrentUserAsync(ClaimsPrincipal userClaims)
   {
+    var userId = userClaims.FindFirstValue(JwtRegisteredClaimNames.Sub)
+      ?? throw new NotFoundException("User not found.");
+
     var user = await _userManager.FindByIdAsync(userId)
       ?? throw new NotFoundException("User not found.");
 
-    return user.Email ?? string.Empty;
+    var roles = await _userManager.GetRolesAsync(user);
+
+    return new
+    {
+      user.Id,
+      user.Email,
+      Role = roles.FirstOrDefault() ?? string.Empty
+    };
   }
 
-  public async Task UpdatePasswordAsync(string userId, string oldPassword, string newPassword)
+  public async Task UpdatePasswordAsync(ClaimsPrincipal userClaims, UpdatePasswordRequest request)
   {
+    var userId = userClaims.FindFirstValue(JwtRegisteredClaimNames.Sub)
+      ?? throw new NotFoundException("User not found.");
+
     var user = await _userManager.FindByIdAsync(userId)
       ?? throw new NotFoundException("User not found.");
 
-    var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+    var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
     if (!result.Succeeded)
       throw new BadRequestException(result.Errors.First().Description);
   }
@@ -86,8 +97,8 @@ public class AuthService : IAuthService
     };
 
     var token = new JwtSecurityToken(
-      issuer: _configuration["Jwt:Issuer"],
-      audience: _configuration["Jwt: Audience"],
+      issuer: _configuration["JwtSettings:Issuer"],
+      audience: _configuration["JwtSettings: Audience"],
       claims: claims,
       expires: DateTime.UtcNow.AddHours(double.Parse(_configuration["Jwt:ExpiryHours"] ?? "24")),
       signingCredentials: credentials);

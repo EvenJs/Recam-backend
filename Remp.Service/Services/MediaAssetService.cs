@@ -142,4 +142,35 @@ public class MediaAssetService : IMediaAssetService
       throw;
     }
   }
+
+  public async Task<(Stream FileStream, string ContentType, string FileName)> DownloadMediaAsync(int mediaId)
+  {
+    var media = await _unitOfWork.MediaAssets.GetByIdAsync(mediaId)
+      ?? throw new NotFoundException($"Media asset {mediaId} not found.");
+    
+    var (fileStream, contentType, fileName) = await _blobStorageService.DownloadAsync(media.MediaUrl);
+
+    return (fileStream, contentType, fileName);
+  }
+
+public async Task<(Stream FileStream, string ContentType, string FileName)> DownloadAllMediaAsZipAsync(int listingCaseId)
+{
+    var mediaList = await _unitOfWork.MediaAssets.GetByListingIdAsync(listingCaseId);
+
+    var zipStream = new MemoryStream();
+    using (var archive = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Create, leaveOpen: true))
+    {
+        foreach (var media in mediaList)
+        {
+            var (fileStream, _, _) = await _blobStorageService.DownloadAsync(media.MediaUrl);
+            var entryName = Path.GetFileName(media.MediaUrl);
+            var entry = archive.CreateEntry(entryName);
+            await using var entryStream = entry.Open();
+            await fileStream.CopyToAsync(entryStream);
+        }
+    }
+
+    zipStream.Position = 0;
+    return (zipStream, "application/zip", $"listing-{listingCaseId}-media.zip");
+}
 }

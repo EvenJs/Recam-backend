@@ -167,4 +167,33 @@ public class ListingCaseService : IListingCaseService
       throw;
     }
   }
+
+  public async Task<string> PublishListingAsync(int listingId, string operatorId)
+  {
+    var listing = await _unitOfWork.ListingCases.GetByIdAsync(listingId)
+      ?? throw new NotFoundException($"Listing case {listingId} not found.");
+
+    var shareableUrl = $"https://remp.com/listings/{listingId}/{Guid.NewGuid():N}";
+    
+    await _unitOfWork.BeginTransactionAsync();
+    try
+    {
+      await _unitOfWork.CaseHistories.InsertAsync(new CaseHistory
+      {
+        ListingCaseId = listingId,
+        OperatorId = operatorId,
+        Action = "Published",
+        FieldChanged = "ShareableUrl",
+        NewValue = shareableUrl,
+        CreatedAt = DateTime.UtcNow
+      });
+      await _unitOfWork.CommitTransactionAsync();
+    }
+    catch
+    {
+      await _unitOfWork.RollbackTransactionAsync();
+      throw;
+    }
+    return shareableUrl;
+  }
 }

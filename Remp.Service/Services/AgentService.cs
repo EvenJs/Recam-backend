@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Remp.Common.Exceptions;
+using Remp.Common.Helpers;
 using Remp.Models.Constants;
 using Remp.Models.Entities;
 using Remp.Repository.Common;
@@ -99,6 +100,20 @@ public class AgentService : IAgentService
     await _uintOfWork.AgentPhotographyCompanies.AddAsync(link);
     await _uintOfWork.SaveChangesAsync();
   }
+  
+  public async Task<(IEnumerable<AgentResponse> Items, int TotalCount)> GetAllUsersAsync(int page, int pageSize)
+  {
+    var users = _userManager.Users
+      .Where(u => !u.IsDeleted)
+      .Skip((page - 1) * pageSize)
+      .Take(pageSize)
+      .ToList();
+
+    var totalCount = _userManager.Users.Count(u => !u.IsDeleted);
+
+    var mapped = _mapper.Map<IEnumerable<AgentResponse>>(users);
+    return (mapped, totalCount);
+  }
 
   private static string GenerateRandomPassword()
   {
@@ -108,4 +123,6 @@ public class AgentService : IAgentService
       .Select(s => s[random.Next(s.Length)])
       .ToArray());
   }
+
+
 }

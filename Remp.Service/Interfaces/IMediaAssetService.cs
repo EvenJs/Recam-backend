@@ -10,4 +10,6 @@ public interface IMediaAssetService
   Task SetHeroImageAsync(int listingCaseId, int mediaId);
   Task<IEnumerable<MediaAssetResponse>> GetSelectedMediaAsync(int listingCaseId);
   Task UpdateSelectedMediaAsync(int listingCaseId, List<int> mediaIds, string userId);
+  Task<(Stream FileStream, string ContentType, string FileName)> DownloadMediaAsync(int mediaId);
+  Task<(Stream FileStream, string ContentType, string FileName)> DownloadAllMediaAsZipAsync(int listingCaseId);
 }

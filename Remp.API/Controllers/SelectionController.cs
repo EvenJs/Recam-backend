@@ -133,8 +133,11 @@ public class SelectionController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PublishListing([FromRoute] int id)
     {
-        // TODO: implement PublishListingAsync in IListingCaseService
-        throw new NotImplementedException("Publish not yet implemented.");
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedAccessException("Invalid token.");
+
+       var result = await _listingCaseService.PublishListingAsync(id, userId);
+       return Ok(ApiResponse<string>.Ok(result));
     }
 
 }

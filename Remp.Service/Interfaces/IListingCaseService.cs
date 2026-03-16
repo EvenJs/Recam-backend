@@ -16,4 +16,5 @@ public interface IListingCaseService
   Task DeleteListingCaseAsync(int id);
   Task UpdateListingStatusAsync(int id, int newStatus, string operatorId);
   Task AssignAgentToListingAsync(int listingId, string agentId, string operatorId);
+  Task<string> PublishListingAsync(int listingId, string operatorId);
 }

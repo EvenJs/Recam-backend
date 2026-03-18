@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remp.Service", "Remp.Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remp.API", "Remp.API\Remp.API.csproj", "{52B2F758-E1E5-47E9-AB60-AE298DAA49C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remp.Tests", "Remp.Tests\Remp.Tests.csproj", "{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{52B2F758-E1E5-47E9-AB60-AE298DAA49C5}.Release|x64.Build.0 = Release|Any CPU
 		{52B2F758-E1E5-47E9-AB60-AE298DAA49C5}.Release|x86.ActiveCfg = Release|Any CPU
 		{52B2F758-E1E5-47E9-AB60-AE298DAA49C5}.Release|x86.Build.0 = Release|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Debug|x64.Build.0 = Debug|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Debug|x86.Build.0 = Debug|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Release|x64.ActiveCfg = Release|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Release|x64.Build.0 = Release|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Release|x86.ActiveCfg = Release|Any CPU
+		{B6A11DBE-2C85-4E73-BC61-2DEA361D90DB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

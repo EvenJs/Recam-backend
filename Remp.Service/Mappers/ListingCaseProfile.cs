@@ -12,5 +12,17 @@ public class ListingCaseProfile : Profile
     CreateMap<UpdateListingCaseRequest, ListingCase>()
       .ForAllMembers(opts => opts.Condition((stc, dest, srcMember) => srcMember != null));
     CreateMap<ListingCase, ListingCaseResponse>();
+    CreateMap<ListingCase, ListingCase>()
+    // ... existing mappings ...
+    .ForMember(
+        dest => dest.MediaTypes,
+        opt => opt.MapFrom(src =>
+            src.MediaAssets
+               .Select(m => (int)m.MediaType)
+               .Distinct()
+               .OrderBy(x => x)
+               .ToList()
+        )
+    );
   }
 }

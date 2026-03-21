@@ -21,6 +21,7 @@ public class ListingCase
   public double FloorArea { get; set; }
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
   public bool IsDeleted { get; set; } = false;
+  public IReadOnlyList<int> MediaTypes { get; init; } = [];
   public PropertyType PropertyType { get; set; }
   public SaleCategory SaleCategory { get; set; }
   public ListcaseStatus ListcaseStatus { get; set; } = ListcaseStatus.Created;

@@ -44,7 +44,7 @@ public class AgentsController : ControllerBase
         return StatusCode(201, ApiResponse<AgentResponse>.Created(result));
     }
 
-        /// <summary>
+    /// <summary>
     /// Returns all agents under the current Admin. Admin only.
     /// </summary>
     /// <returns>List of agents.</returns>
@@ -56,7 +56,7 @@ public class AgentsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetAgentsByCompany()
     {
-        var companyId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+        var companyId = User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new UnauthorizedAccessException("Invalid token");
 
         var result = await _agentService.GetAgentsByCompanyAsync(companyId);
@@ -92,7 +92,7 @@ public class AgentsController : ControllerBase
     [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]   
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> LinkAgentToCompany([FromRoute] string id)
     {
         var companyId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
@@ -100,5 +100,5 @@ public class AgentsController : ControllerBase
 
         await _agentService.LinkAgentToCompanyAsync(id, companyId);
         return Ok(ApiResponse<object>.Ok("Agent linked to company successfully."));
-    } 
+    }
 }

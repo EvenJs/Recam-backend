@@ -10,25 +10,27 @@ public class ListingCaseRepository : BaseRepository<ListingCase>, IListingCaseRe
   public ListingCaseRepository(AppDbContext context) : base(context) { }
 
   public async Task<IEnumerable<ListingCase>> GetByUserIdAsync(string userId)
-    => await _dbSet
-      .Include(l => l.MediaAssets)
-      .Where(x => x.UserId == userId && !x.IsDeleted)
-      .ToListAsync();
+      => await _dbSet
+          .Include(x => x.MediaAssets)
+          .Where(x => x.UserId == userId && !x.IsDeleted)
+          .ToListAsync();
 
   public async Task<IEnumerable<ListingCase>> GetByAgentIdAsync(string agentId)
-    => await _dbSet
-      .Include(l => l.MediaAssets)
-      .Where(x => x.AgentListingCases.Any(a => a.AgentId == agentId) && !x.IsDeleted)
-      .ToListAsync();
+      => await _dbSet
+          .Include(x => x.MediaAssets)
+          .Where(x => x.AgentListingCases.Any(a => a.AgentId == agentId) && !x.IsDeleted)
+          .ToListAsync();
 
   public async Task<(IEnumerable<ListingCase> Items, int TotalCount)> GetPagedAsync(
-    string? userId,
-    string? agentId,
-    int? statusFilter,
-    int page,
-    int pageSize)
+      string? userId,
+      string? agentId,
+      int? statusFilter,
+      int page,
+      int pageSize)
   {
-    var query = _dbSet.Where(x => !x.IsDeleted);
+    var query = _dbSet
+        .Include(x => x.MediaAssets)
+        .Where(x => !x.IsDeleted);
 
     if (userId != null)
       query = query.Where(x => x.UserId == userId);
@@ -42,10 +44,9 @@ public class ListingCaseRepository : BaseRepository<ListingCase>, IListingCaseRe
     var totalCount = await query.CountAsync();
 
     var items = await query
-      .Include(l => l.MediaAssets)
-      .Skip((page - 1) * pageSize)
-      .Take(pageSize)
-      .ToListAsync();
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
 
     return (items, totalCount);
   }

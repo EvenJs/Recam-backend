@@ -18,6 +18,7 @@ public class ListingCaseResponse
   public int Bathrooms { get; set; }
   public int Garages { get; set; }
   public double? FloorArea { get; set; }
+  public List<int> MediaTypes { get; set; } = new();
   public PropertyType PropertyType { get; set; }
   public SaleCategory SaleCategory { get; set; }
   public ListcaseStatus ListcaseStatus { get; set; }

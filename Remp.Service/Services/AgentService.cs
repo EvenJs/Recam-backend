@@ -32,9 +32,9 @@ public class AgentService : IAgentService
   public async Task<AgentResponse> CreateAgentAsync(RegisterAgentRequest request, string photographyCompanyId)
   {
     var existingUser = await _userManager.FindByEmailAsync(request.Email);
-    if(existingUser != null)
+    if (existingUser != null)
       throw new ConflictException("An account with this email already exists.");
-    
+
     var password = GenerateRandomPassword();
 
     var agent = new Agent
@@ -48,7 +48,7 @@ public class AgentService : IAgentService
     };
 
     var result = await _userManager.CreateAsync(agent, password);
-    if(!result.Succeeded)
+    if (!result.Succeeded)
       throw new BadRequestException(result.Errors.First().Description);
 
     await _userManager.AddToRoleAsync(agent, Roles.Agent);
@@ -88,7 +88,7 @@ public class AgentService : IAgentService
   public async Task LinkAgentToCompanyAsync(string agentId, string photographyCompanyId)
   {
     var exists = await _uintOfWork.AgentPhotographyCompanies.ExistsAsync(agentId, photographyCompanyId);
-    if(exists)
+    if (exists)
       throw new ConflictException("Agent is already linked to this company.");
 
     var link = new AgentPhotographyCompany
@@ -100,8 +100,8 @@ public class AgentService : IAgentService
     await _uintOfWork.AgentPhotographyCompanies.AddAsync(link);
     await _uintOfWork.SaveChangesAsync();
   }
-  
-  public async Task<(IEnumerable<AgentResponse> Items, int TotalCount)> GetAllUsersAsync(int page, int pageSize)
+
+  public Task<(IEnumerable<AgentResponse> Items, int TotalCount)> GetAllUsersAsync(int page, int pageSize)
   {
     var users = _userManager.Users
       .Where(u => !u.IsDeleted)
@@ -112,7 +112,7 @@ public class AgentService : IAgentService
     var totalCount = _userManager.Users.Count(u => !u.IsDeleted);
 
     var mapped = _mapper.Map<IEnumerable<AgentResponse>>(users);
-    return (mapped, totalCount);
+    return Task.FromResult((mapped, totalCount));
   }
 
   private static string GenerateRandomPassword()

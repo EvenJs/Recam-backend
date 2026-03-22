@@ -117,11 +117,28 @@ public class AgentService : IAgentService
 
   private static string GenerateRandomPassword()
   {
-    const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
+    const string letters = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz";
+    const string digits = "23456789";
+    const string special = "!@#$%";
+
     var random = new Random();
-    return new string(Enumerable.Repeat(chars, 12)
-      .Select(s => s[random.Next(s.Length)])
-      .ToArray());
+
+    // Guarantee at least one of each required type
+    var password = new List<char>
+    {
+        letters[random.Next(letters.Length)],
+        char.ToUpper(letters[random.Next(letters.Length)]),
+        digits[random.Next(digits.Length)],
+        special[random.Next(special.Length)]
+    };
+
+    // Fill remaining 8 characters from full pool
+    const string allChars = letters + digits + special;
+    for (int i = 0; i < 8; i++)
+      password.Add(allChars[random.Next(allChars.Length)]);
+
+    // Shuffle to avoid predictable pattern
+    return new string(password.OrderBy(_ => random.Next()).ToArray());
   }
 
 

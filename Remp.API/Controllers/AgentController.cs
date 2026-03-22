@@ -37,7 +37,7 @@ public class AgentsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CreateAgent([FromBody] RegisterAgentRequest request)
     {
-        var companyId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+        var companyId = User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new UnauthorizedAccessException("Invalid token.");
 
         var result = await _agentService.CreateAgentAsync(request, companyId);
@@ -95,7 +95,7 @@ public class AgentsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> LinkAgentToCompany([FromRoute] string id)
     {
-        var companyId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+        var companyId = User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new UnauthorizedAccessException("Invalid token");
 
         await _agentService.LinkAgentToCompanyAsync(id, companyId);

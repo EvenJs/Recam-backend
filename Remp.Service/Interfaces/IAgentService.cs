@@ -7,7 +7,7 @@ public interface IAgentService
 {
   Task<AgentResponse> CreateAgentAsync(RegisterAgentRequest request, string photographyCompanyId);
   Task<IEnumerable<AgentResponse>> GetAgentsByCompanyAsync(string photographyCompanyId);
-  Task<AgentResponse> GetAgentByEmailAsync(string email);
+  Task<IEnumerable<AgentResponse>> GetAgentByEmailAsync(string email);
   Task LinkAgentToCompanyAsync(string agentId, string photographyCompanyId);
   Task<(IEnumerable<AgentResponse> Items, int TotalCount)> GetAllUsersAsync(int page, int pageSize);
 }

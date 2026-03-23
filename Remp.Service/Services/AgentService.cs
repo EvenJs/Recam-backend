@@ -77,12 +77,12 @@ public class AgentService : IAgentService
     return _mapper.Map<IEnumerable<AgentResponse>>(agents);
   }
 
-  public async Task<AgentResponse> GetAgentByEmailAsync(string email)
+  public async Task<IEnumerable<AgentResponse>> GetAgentByEmailAsync(string email)
   {
     var agent = await _uintOfWork.Agents.GetByEmailAsync(email)
       ?? throw new NotFoundException($"Agent with email {email} not found.");
 
-    return _mapper.Map<AgentResponse>(agent);
+    return _mapper.Map<IEnumerable<AgentResponse>>(agent);
   }
 
   public async Task LinkAgentToCompanyAsync(string agentId, string photographyCompanyId)

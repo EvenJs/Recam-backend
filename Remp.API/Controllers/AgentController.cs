@@ -74,10 +74,10 @@ public class AgentsController : ControllerBase
     [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(typeof(ApiResponse<AgentResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> SearchAgentByEmail([FromBody] string email)
+    public async Task<IActionResult> SearchAgentByEmail([FromQuery] string email)
     {
         var result = await _agentService.GetAgentByEmailAsync(email);
-        return Ok(ApiResponse<AgentResponse>.Ok(result));
+        return Ok(ApiResponse<IEnumerable<AgentResponse>>.Ok(result));
     }
 
     /// <summary>

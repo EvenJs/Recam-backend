@@ -8,13 +8,16 @@ public static class DataSeeder
 {
   public static async Task SeedAsync(
     UserManager<ApplicationUser> userManager,
-    RoleManager<IdentityRole> roleManager)
+    RoleManager<IdentityRole> roleManager,
+    AppDbContext context)
   {
     // Seed Roles
     await SeedRolesAsync(roleManager);
 
     // Seed default Admin account
     await SeedAdminAsync(userManager);
+
+    await SeedAgentAsync(userManager, context);
   }
 
   private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
@@ -50,6 +53,46 @@ public static class DataSeeder
       if (result.Succeeded)
       {
         await userManager.AddToRoleAsync(admin, Roles.Admin);
+      }
+    }
+  }
+
+  private static async Task SeedAgentAsync(
+    UserManager<ApplicationUser> userManager,
+    AppDbContext context)
+  {
+    var agentEmail = "agent@remp.com";
+
+    if (await userManager.FindByEmailAsync(agentEmail) == null)
+    {
+      var agent = new Agent
+      {
+        UserName = agentEmail,
+        Email = agentEmail,
+        EmailConfirmed = true,
+        AgentFirstName = "Test",
+        AgentLastName = "Agent",
+        CompanyName = "Remp Photography",
+        CreatedAt = DateTime.UtcNow
+      };
+
+      var result = await userManager.CreateAsync(agent, "Agent@123!");
+
+      if (result.Succeeded)
+      {
+        await userManager.AddToRoleAsync(agent, Roles.Agent);
+
+        // Link agent to the seeded admin company
+        var admin = await userManager.FindByEmailAsync("admin@remp.com");
+        if (admin != null)
+        {
+          context.Set<AgentPhotographyCompany>().Add(new AgentPhotographyCompany
+          {
+            AgentId = agent.Id,
+            PhotographyCompanyId = admin.Id
+          });
+          await context.SaveChangesAsync();
+        }
       }
     }
   }

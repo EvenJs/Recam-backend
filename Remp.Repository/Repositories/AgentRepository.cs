@@ -13,10 +13,10 @@ public class AgentRepository : BaseRepository<Agent>, IAgentRepository
   public async Task<Agent?> GetByUserIdAsync(string userId)
     => await _dbSet.FirstOrDefaultAsync(x => x.Id == userId);
 
-  public async Task<Agent?> GetByEmailAsync(string email)
-    => await _dbSet
-      .FirstOrDefaultAsync(x => x.Email == email);
-
+  public async Task<IEnumerable<Agent>> GetByEmailAsync(string email)
+      => await _dbSet
+          .Where(x => x.Email != null && x.Email.Contains(email))
+          .ToListAsync();
   public async Task<IEnumerable<Agent>> GetByPhotographyCompanyIdAsync(string photographyCompanyId)
     => await _dbSet
       .Where(x => x.AgentPhotographyCompanies.Any(apc => apc.PhotographyCompanyId == photographyCompanyId))

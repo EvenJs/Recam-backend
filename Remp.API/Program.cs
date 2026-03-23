@@ -158,7 +158,7 @@ using (var scope = app.Services.CreateScope())
     // Then seed
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    await DataSeeder.SeedAsync(userManager, roleManager);
+    await DataSeeder.SeedAsync(userManager, roleManager, dbContext);
 }
 
 if (app.Environment.IsDevelopment())

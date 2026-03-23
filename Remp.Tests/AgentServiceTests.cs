@@ -49,7 +49,7 @@ public class AgentServiceTests
   {
     var existingUser = new Agent { Email = "agent@remp.com" };
 
-    _userManagerMock.Setup(m =>m.FindByEmailAsync("agent@remp.com")).ReturnsAsync(existingUser);
+    _userManagerMock.Setup(m => m.FindByEmailAsync("agent@remp.com")).ReturnsAsync(existingUser);
 
     var request = new RegisterAgentRequest
     {
@@ -97,14 +97,17 @@ public class AgentServiceTests
   {
     _agentCompanyRepoMock.Setup(r => r.ExistsAsync("agent-123", "company-123")).ReturnsAsync(true);
 
-    await Assert.ThrowsAsync<ConflictException>(() => _service.LinkAgentToCompanyAsync("agent-123","company-123"));
+    await Assert.ThrowsAsync<ConflictException>(() => _service.LinkAgentToCompanyAsync("agent-123", "company-123"));
   }
 
   [Fact]
-  public async Task GetAgentByEmailAsync_NotFound_ThrowsNotFoundException()
+  public async Task GetAgentByEmailAsync_NoMatch_ReturnsEmptyList()
   {
-    _agentRepoMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync((Agent?)null);
+    _agentRepoMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>()))
+        .ReturnsAsync(new List<Agent>());
 
-    await Assert.ThrowsAsync<Remp.Common.Exceptions.NotFoundException>(() => _service.GetAgentByEmailAsync("notfound@remp.com"));
+    var result = await _service.GetAgentByEmailAsync("notfound@remp.com");
+
+    Assert.Empty(result);
   }
 }

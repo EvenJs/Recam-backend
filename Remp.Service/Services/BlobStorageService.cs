@@ -11,10 +11,10 @@ public class BlobStorageService : IBlobStorageService
 
   public BlobStorageService(IConfiguration configuration)
   {
-    var connectionString = configuration["AzureBlobStorage:ConnectionString"]
+    var connectionString = configuration["BlobStorageSettings:ConnectionString"]
       ?? throw new InvalidOperationException("Azure Blob Storage connection string is not configured.");
 
-    var containerName = configuration["AzureBlobStorage:ContainerName"]
+    var containerName = configuration["BlobStorageSettings:ContainerName"]
       ?? throw new InvalidOperationException("Azure Blob Storage container name is not configured.");
 
     var blobServiceClient = new BlobServiceClient(connectionString);

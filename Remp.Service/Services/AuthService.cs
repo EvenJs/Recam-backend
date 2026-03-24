@@ -31,7 +31,7 @@ public class AuthService : IAuthService
       ?? throw new NotFoundException("User not found.");
 
     var isValidPassword = await _userManager.CheckPasswordAsync(user, request.Password);
-    if(!isValidPassword)
+    if (!isValidPassword)
       throw new UnauthorizedAccessException("Invalid credentials.");
 
     var roles = await _userManager.GetRolesAsync(user);
@@ -52,7 +52,7 @@ public class AuthService : IAuthService
   public async Task<object> GetCurrentUserAsync(ClaimsPrincipal userClaims)
   {
     var userId = userClaims.FindFirstValue(ClaimTypes.NameIdentifier)
-      ?? userClaims.FindFirstValue(JwtRegisteredClaimNames.Sub)
+      ?? userClaims.FindFirstValue(ClaimTypes.NameIdentifier)
       ?? throw new NotFoundException("User not found.");
 
     var user = await _userManager.FindByIdAsync(userId)
@@ -70,7 +70,7 @@ public class AuthService : IAuthService
 
   public async Task UpdatePasswordAsync(ClaimsPrincipal userClaims, UpdatePasswordRequest request)
   {
-    var userId = userClaims.FindFirstValue(JwtRegisteredClaimNames.Sub)
+    var userId = userClaims.FindFirstValue(ClaimTypes.NameIdentifier)
       ?? throw new NotFoundException("User not found.");
 
     var user = await _userManager.FindByIdAsync(userId)
@@ -91,7 +91,7 @@ public class AuthService : IAuthService
 
     var claims = new[]
     {
-      new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+      new Claim(ClaimTypes.NameIdentifier, user.Id),
       new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
       new Claim(ClaimTypes.Role, role),
       new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
@@ -103,7 +103,7 @@ public class AuthService : IAuthService
       claims: claims,
       expires: DateTime.UtcNow.AddHours(double.Parse(_configuration["JwtSettings:ExpiryMinutes"] ?? "60")),
       signingCredentials: credentials);
-  
+
     return new JwtSecurityTokenHandler().WriteToken(token);
   }
 }

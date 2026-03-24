@@ -46,7 +46,7 @@ public class AuthServiceTests
 
         _userManagerMock.Setup(m => m.CheckPasswordAsync(user, "Admin@123!")).ReturnsAsync(true);
 
-        _userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string> {"PhotographyCompany"});
+        _userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string> { "PhotographyCompany" });
 
         var request = new LoginRequest
         {

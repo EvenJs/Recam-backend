@@ -21,7 +21,7 @@ public class ListingsController : ControllerBase
         _listingCaseService = listingCaseService;
     }
 
-        /// <summary>
+    /// <summary>
     /// Creates a new listing case. Admin only.
     /// </summary>
     /// <param name="request">Listing case details.</param>
@@ -60,14 +60,14 @@ public class ListingsController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new UnauthorizedAccessException("Invalid token.");
-        
+
         var isAdmin = User.IsInRole(Roles.Admin);
 
         var adminId = isAdmin ? userId : null;
         var agentId = isAdmin ? null : userId;
 
 
-        var result = await _listingCaseService.GetListingsAsync(userId, agentId, status, page, pageSize);
+        var result = await _listingCaseService.GetListingsAsync(adminId, agentId, status, page, pageSize);
         return Ok(ApiResponse<IEnumerable<ListingCaseResponse>>.Ok(result.Items));
     }
 
@@ -146,7 +146,7 @@ public class ListingsController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new UnauthorizedAccessException("Invalid token");
-        
+
         await _listingCaseService.UpdateListingStatusAsync(id, status, userId);
         return Ok(ApiResponse<object>.Ok("Listing status updated successfully."));
     }

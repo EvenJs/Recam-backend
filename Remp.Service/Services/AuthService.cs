@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Remp.Common.Exceptions;
+using Remp.Models.Constants;
 using Remp.Models.Entities;
 using Remp.Service.DTOs.Auth;
 using Remp.Service.Interfaces;
@@ -39,7 +40,7 @@ public class AuthService : IAuthService
 
     var token = GenerateJwtToken(user, role);
 
-    return new LoginResponse
+    var response = new LoginResponse
     {
       Token = token,
       UserId = user.Id,
@@ -47,6 +48,18 @@ public class AuthService : IAuthService
       Role = role,
       ExpiresAt = DateTime.UtcNow.AddHours(double.Parse(_configuration["Jwt:ExpiryHours"] ?? "24"))
     };
+    // Populate name based on role
+    if (role == Roles.Agent && user is Agent agent)
+    {
+      response.FirstName = agent.AgentFirstName;
+      response.LastName = agent.AgentLastName;
+    }
+    else if (role == Roles.Admin && user is PhotographyCompany company)
+    {
+      response.FirstName = company.PhotographyCompanyName;
+      response.LastName = string.Empty;
+    }
+    return response;
   }
 
   public async Task<object> GetCurrentUserAsync(ClaimsPrincipal userClaims)

@@ -10,7 +10,7 @@ namespace Remp.API.Controllers;
 
 [ApiController]
 [Authorize]
-public class MediaController: ControllerBase
+public class MediaController : ControllerBase
 {
     private readonly IMediaAssetService _mediaAssetService;
 
@@ -71,7 +71,7 @@ public class MediaController: ControllerBase
     [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult>DeleteMedia([FromRoute] int id)
+    public async Task<IActionResult> DeleteMedia([FromRoute] int id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new UnauthorizedAccessException("Invalid token.");
@@ -88,7 +88,7 @@ public class MediaController: ControllerBase
     /// <returns>Success message.</returns>
     /// <response code="200">Hero image set successfully.</response>
     /// <response code="404">Listing case or media not found.</response>
-    [HttpPut("listings/{id}/hero-image")]
+    [HttpPut("listings/{id}/cover-image")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SetHeroImage(

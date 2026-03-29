@@ -50,4 +50,9 @@ public class ListingCaseRepository : BaseRepository<ListingCase>, IListingCaseRe
 
     return (items, totalCount);
   }
+
+  public async Task<ListingCase?> GetByShareableUrlAsync(string shareableUrl)
+    => await _dbSet
+        .Include(x => x.MediaAssets)
+        .FirstOrDefaultAsync(x => x.ShareableUrl == shareableUrl && !x.IsDeleted);
 }

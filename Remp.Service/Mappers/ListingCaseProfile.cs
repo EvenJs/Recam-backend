@@ -20,5 +20,6 @@ public class ListingCaseProfile : Profile
                    .Distinct()
                    .OrderBy(x => x)
                    .ToList()));
+    CreateMap<ListingCase, ListingCasePreviewResponse>();
   }
 }

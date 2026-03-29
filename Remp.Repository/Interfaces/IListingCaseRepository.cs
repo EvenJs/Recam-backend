@@ -12,4 +12,5 @@ public interface IListingCaseRepository : IBaseRepository<ListingCase>
     int? statusFilter,
     int page,
     int pageSize);
+  Task<ListingCase?> GetByShareableUrlAsync(string shareableUrl);
 }

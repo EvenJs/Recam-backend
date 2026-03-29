@@ -173,4 +173,19 @@ public class ListingsController : ControllerBase
         await _listingCaseService.AssignAgentToListingAsync(id, agentId, userId);
         return Ok(ApiResponse<object>.Ok("Agent assign successfully."));
     }
+
+    /// <summary>
+    /// Get public preview data for a listing case using shareable token.
+    /// </summary>
+    /// <param name="token">The shareable token.</param>
+    /// <returns>Listing case preview data.</returns>
+    /// <response code="200">Preview data returned successfully.</response>
+    /// <response code="404">Listing not found.</response>
+    [HttpGet("preview/{token}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetPublicPreview(string token)
+    {
+        var result = await _listingCaseService.GetListingByTokenAsync(token);
+        return Ok(ApiResponse<ListingCasePreviewResponse>.Ok(result));
+    }
 }

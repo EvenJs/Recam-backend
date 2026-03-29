@@ -1,10 +1,13 @@
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using Remp.Common.Exceptions;
 using Remp.Models.Entities;
 using Remp.Models.Enums;
 using Remp.Models.MongoDocuments;
 using Remp.Repository.Common;
+using Remp.Service.DTOs.CaseContact;
 using Remp.Service.DTOs.ListingCase;
+using Remp.Service.DTOs.MediaAsset;
 using Remp.Service.Interfaces;
 
 namespace Remp.Service.Services;
@@ -13,11 +16,13 @@ public class ListingCaseService : IListingCaseService
 {
   private readonly IUnitOfWork _unitOfWork;
   private readonly IMapper _mapper;
+  private readonly IConfiguration _configuration;
 
-  public ListingCaseService(IUnitOfWork unitOfWork, IMapper mapper)
+  public ListingCaseService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
   {
     _unitOfWork = unitOfWork;
     _mapper = mapper;
+    _configuration = configuration;
   }
 
   public async Task<ListingCaseResponse> CreateListingCaseAsync(CreateListingCaseRequest request, string userId)
@@ -68,7 +73,7 @@ public class ListingCaseService : IListingCaseService
     var listing = await _unitOfWork.ListingCases.GetByIdAsync(id)
       ?? throw new NotFoundException($"Listing case {id} not found.");
 
-      return _mapper.Map<ListingCaseResponse>(listing);
+    return _mapper.Map<ListingCaseResponse>(listing);
   }
 
   public async Task<ListingCaseResponse> UpdateListingCaseAsync(int id, UpdateListingCaseRequest request)
@@ -111,17 +116,17 @@ public class ListingCaseService : IListingCaseService
       await _unitOfWork.SaveChangesAsync();
 
       await _unitOfWork.CaseHistories.InsertAsync(new CaseHistory
-        {
-          ListingCaseId = id,
-          OperatorId = operatorId,
-          Action = "StatusUpdated",
-          FieldChanged = "ListcaseStatus",
-          OldValue = oldStatus,
-          NewValue = listing.ListcaseStatus.ToString(),
-          CreatedAt = DateTime.UtcNow
-        });
+      {
+        ListingCaseId = id,
+        OperatorId = operatorId,
+        Action = "StatusUpdated",
+        FieldChanged = "ListcaseStatus",
+        OldValue = oldStatus,
+        NewValue = listing.ListcaseStatus.ToString(),
+        CreatedAt = DateTime.UtcNow
+      });
 
-        await _unitOfWork.CommitTransactionAsync();
+      await _unitOfWork.CommitTransactionAsync();
     }
     catch
     {
@@ -171,22 +176,36 @@ public class ListingCaseService : IListingCaseService
   public async Task<string> PublishListingAsync(int listingId, string operatorId)
   {
     var listing = await _unitOfWork.ListingCases.GetByIdAsync(listingId)
-      ?? throw new NotFoundException($"Listing case {listingId} not found.");
+        ?? throw new NotFoundException($"Listing case {listingId} not found.");
 
-    var shareableUrl = $"https://remp.com/listings/{listingId}/{Guid.NewGuid():N}";
-    
+    // Return existing URL if already published
+    if (!string.IsNullOrEmpty(listing.ShareableUrl))
+      return listing.ShareableUrl;
+
+    var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+        .Replace("/", "-")
+        .Replace("+", "_")
+        .Replace("=", "")
+        .ToLower();
+
+    var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:5173";
+    listing.ShareableUrl = $"{frontendUrl}/p/{token}";
+
     await _unitOfWork.BeginTransactionAsync();
     try
     {
+      await _unitOfWork.SaveChangesAsync();
+
       await _unitOfWork.CaseHistories.InsertAsync(new CaseHistory
       {
         ListingCaseId = listingId,
         OperatorId = operatorId,
         Action = "Published",
         FieldChanged = "ShareableUrl",
-        NewValue = shareableUrl,
+        NewValue = listing.ShareableUrl,
         CreatedAt = DateTime.UtcNow
       });
+
       await _unitOfWork.CommitTransactionAsync();
     }
     catch
@@ -194,6 +213,32 @@ public class ListingCaseService : IListingCaseService
       await _unitOfWork.RollbackTransactionAsync();
       throw;
     }
-    return shareableUrl;
+
+    return listing.ShareableUrl;
+  }
+
+  public async Task<ListingCasePreviewResponse> GetListingByTokenAsync(string token)
+  {
+    var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:5173";
+    var shareableUrl = $"{frontendUrl}/p/{token}";
+
+    var listing = await _unitOfWork.ListingCases.GetByShareableUrlAsync(shareableUrl)
+        ?? throw new NotFoundException("Listing not found.");
+
+    var response = _mapper.Map<ListingCasePreviewResponse>(listing);
+
+    // Hero image
+    var heroImage = await _unitOfWork.MediaAssets.GetHeroByListingIdAsync(listing.Id);
+    response.HeroImage = heroImage != null ? _mapper.Map<MediaAssetResponse>(heroImage) : null;
+
+    // Selected media
+    var selectedMedia = await _unitOfWork.MediaAssets.GetSelectedByListingIdAsync(listing.Id);
+    response.SelectedMedia = _mapper.Map<List<MediaAssetResponse>>(selectedMedia);
+
+    // Contacts
+    var contacts = await _unitOfWork.CaseContacts.GetByListingIdAsync(listing.Id);
+    response.Contacts = _mapper.Map<List<CaseContactResponse>>(contacts);
+
+    return response;
   }
 }

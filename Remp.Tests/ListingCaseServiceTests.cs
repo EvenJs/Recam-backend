@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Remp.Common.Exceptions;
 using Remp.Models.Entities;
@@ -17,20 +18,25 @@ public class ListingCaseServiceTests
   private readonly Mock<AutoMapper.IMapper> _mapperMock;
   private readonly Mock<IListingCaseRepository> _listingRepoMock;
   private readonly ListingCaseService _service;
+  private readonly Mock<IConfiguration> _configurationMock;
 
   public ListingCaseServiceTests()
   {
     _unitOfWorkMock = new Mock<IUnitOfWork>();
     _mapperMock = new Mock<AutoMapper.IMapper>();
     _listingRepoMock = new Mock<IListingCaseRepository>();
+    _configurationMock = new Mock<IConfiguration>();
+
+
 
     _unitOfWorkMock.Setup(u => u.ListingCases).Returns(_listingRepoMock.Object);
     _unitOfWorkMock.Setup(u => u.BeginTransactionAsync()).Returns(Task.CompletedTask);
     _unitOfWorkMock.Setup(u => u.CommitTransactionAsync()).Returns(Task.CompletedTask);
     _unitOfWorkMock.Setup(u => u.RollbackTransactionAsync()).Returns(Task.CompletedTask);
     _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).ReturnsAsync(0);
+    _configurationMock.Setup(c => c["FrontendUrl"]).Returns("http://localhost:5173");
 
-    _service = new ListingCaseService(_unitOfWorkMock.Object, _mapperMock.Object);
+    _service = new ListingCaseService(_unitOfWorkMock.Object, _mapperMock.Object, _configurationMock.Object);
   }
 
   [Fact]
@@ -70,7 +76,7 @@ public class ListingCaseServiceTests
   [Fact]
   public async Task GetListingByIdAsync_ExistingId_ReturnsListingCaseResponse()
   {
-    var listingCase = new ListingCase {Id = 1, Title = "Test Listing" };
+    var listingCase = new ListingCase { Id = 1, Title = "Test Listing" };
     var response = new ListingCaseResponse { Id = 1, Title = "Test Listing" };
 
     _listingRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(listingCase);
@@ -103,7 +109,7 @@ public class ListingCaseServiceTests
 
     _unitOfWorkMock.Setup(u => u.CaseHistories.InsertAsync(It.IsAny<Remp.Models.MongoDocuments.CaseHistory>())).Returns(Task.CompletedTask);
 
-    await _service.UpdateListingStatusAsync(1,2,"operator-123");
+    await _service.UpdateListingStatusAsync(1, 2, "operator-123");
 
     Assert.Equal(ListcaseStatus.Pending, listingCase.ListcaseStatus);
   }
@@ -121,5 +127,5 @@ public class ListingCaseServiceTests
 
     await Assert.ThrowsAsync<BadRequestException>(() => _service.UpdateListingStatusAsync(1, 3, "operator-123"));
   }
-  
+
 }

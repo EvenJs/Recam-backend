@@ -17,4 +17,5 @@ public interface IListingCaseService
   Task UpdateListingStatusAsync(int id, int newStatus, string operatorId);
   Task AssignAgentToListingAsync(int listingId, string agentId, string operatorId);
   Task<string> PublishListingAsync(int listingId, string operatorId);
+  Task<ListingCasePreviewResponse> GetListingByTokenAsync(string token);
 }

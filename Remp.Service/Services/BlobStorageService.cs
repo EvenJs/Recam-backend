@@ -19,7 +19,7 @@ public class BlobStorageService : IBlobStorageService
 
     var blobServiceClient = new BlobServiceClient(connectionString);
     _containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-    _containerClient.CreateIfNotExists(PublicAccessType.Blob);
+    _containerClient.CreateIfNotExists(PublicAccessType.None);
   }
 
   public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType)

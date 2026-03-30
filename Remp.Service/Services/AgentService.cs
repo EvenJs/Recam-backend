@@ -117,12 +117,40 @@ public class AgentService : IAgentService
 
   private static string GenerateRandomPassword()
   {
-    const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
-    var random = new Random();
-    return new string(Enumerable.Repeat(chars, 12)
-      .Select(s => s[random.Next(s.Length)])
-      .ToArray());
-  }
+    const string uppercase = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    const string lowercase = "abcdefghijkmnpqrstuvwxyz";
+    const string digits = "23456789";
+    const string special = "!@#$%";
+    const string allChars = uppercase + lowercase + digits + special;
 
+    var random = new Random();
+    string password;
+
+    do
+    {
+      var chars = new List<char>
+        {
+            uppercase[random.Next(uppercase.Length)],
+            lowercase[random.Next(lowercase.Length)],
+            digits[random.Next(digits.Length)],
+            special[random.Next(special.Length)]
+        };
+
+      for (int i = 0; i < 8; i++)
+        chars.Add(allChars[random.Next(allChars.Length)]);
+
+      // Fisher-Yates shuffle
+      for (int i = chars.Count - 1; i > 0; i--)
+      {
+        int j = random.Next(i + 1);
+        (chars[i], chars[j]) = (chars[j], chars[i]);
+      }
+
+      password = new string(chars.ToArray());
+
+    } while (!password.Any(c => special.Contains(c))); // retry if no special char after shuffle
+
+    return password;
+  }
 
 }
